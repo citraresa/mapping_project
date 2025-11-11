@@ -28,64 +28,51 @@ void main() {
     }
 
 class _MyHomePageState extends State<MyHomePage> {
-  // --- Variabel State Utama ---
-  Position? _currentPosition; // Menyimpan data lokasi
-  String? _errorMessage; // Menyimpa pesan error
-  StreamSubscription<Position>? _positionStream; // Penyimpan stream
+  Position? _currentPosition; 
+  String? _errorMessage; 
+  StreamSubscription<Position>? _positionStream;
   String? _currentAddress; 
   String? _distanceToPNB;
 
-  static const double _pnbLatitude = -7.2575;   // Surabaya latitude
-static const double _pnbLongitude = 112.7521; // Surabaya longitude
+  static const double _pnbLatitude = -7.2575;   
+static const double _pnbLongitude = 112.7521; 
 
-
-
-  // Variabel untuk Latihan 1 dan 2 telah dihapus dari versi ini
 
   @override
   void dispose() {
-    // PENTING: Selalu batalkan stream saat widget dihancurkan
     _positionStream?.cancel();
     super.dispose();
   }
 
-  
 
   Future<Position> _getPermissionAndLocation() async {
     bool serviceEnabled;
     LocationPermission permission;
 
-    // 1. Cek apakah layanan lokasi (GPS) di perangkat aktif
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      // Jika tidak aktif, kirim error
       return Future.error('Layanan lokasi tidak aktif. Harap aktifkan GPS.');
     }
 
-    // 2. Cek izin lokasi dari aplikasi
     permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
-      // Jika ditolak, minta izin
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        // Jika tetap ditolak, kirim error
         return Future.error('Izin lokasi ditolak.');
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
-      // Jika ditolak permanen, kirim error
       return Future.error(
         'Izin lokasi ditolak permanen. Harap ubah di pengaturan aplikasi.',
       );
     }
 
-    // 3. Jika izin diberikan, ambil lokasi saat ini
     return await Geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.high,
     );
   }
-//tugas fungsi get address
+
 Future<void> _getAddressFromLatLng(Position position) async {
     try {
       List<Placemark> placemarks = await placemarkFromCoordinates(
@@ -112,14 +99,13 @@ Future<void> _getAddressFromLatLng(Position position) async {
       Position position = await _getPermissionAndLocation();
       setState(() {
         _currentPosition = position;
-        _errorMessage = null; // Hapus error jika sukses
+        _errorMessage = null;
       });
-       await _getAddressFromLatLng(position); //  ada tampilan alamat saat ini
+       await _getAddressFromLatLng(position); 
 
-      // Fungsi Latihan 1 & 2 dihapus dari sini
     } catch (e) {
       setState(() {
-        _errorMessage = e.toString(); // Tampilkan error di UI
+        _errorMessage = e.toString();
       });
     }
   }
@@ -129,11 +115,10 @@ Future<void> _getAddressFromLatLng(Position position) async {
 
     final LocationSettings locationSettings = LocationSettings(
       accuracy: LocationAccuracy.high,
-      distanceFilter: 10, // Update setiap ada pergerakan 10 meter
+      distanceFilter: 10, 
     );
 
     try {
-      // Mulai mendengarkan stream
       _positionStream =
           Geolocator.getPositionStream(
             locationSettings: locationSettings,
@@ -150,7 +135,7 @@ Future<void> _getAddressFromLatLng(Position position) async {
                 _distanceToPNB = '${(distanceInMeters / 1000).toStringAsFixed(2)} km';
 
             });
-            await _getAddressFromLatLng(position); // Perbarui alamat 
+            await _getAddressFromLatLng(position);
            
           });
     } catch (e) {
@@ -161,7 +146,7 @@ Future<void> _getAddressFromLatLng(Position position) async {
   }
 
   void _handleStopTracking() {
-    _positionStream?.cancel(); // Hentikan stream
+    _positionStream?.cancel();
     setState(() {
       _errorMessage = "Pelacakan dihentikan.";
     });
@@ -240,7 +225,6 @@ Future<void> _getAddressFromLatLng(Position position) async {
 
                 SizedBox(height: 32),
 
-                // Tombol Dapatkan Lokasi
                 ElevatedButton.icon(
                   icon: Icon(Icons.location_searching),
                   label: Text('Dapatkan Lokasi Sekarang'),
@@ -251,7 +235,6 @@ Future<void> _getAddressFromLatLng(Position position) async {
                 ),
                 SizedBox(height: 16),
 
-                // Tombol Mulai & Henti Lacak
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
